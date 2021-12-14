@@ -29,8 +29,8 @@ public class SendController {
         }
     }
 
-    @GetMapping(value = "/switch")
-    public String sendEmail(@RequestParam String email) {
+    @GetMapping(value = "/switch/{email}")
+    public String sendEmail(@PathVariable String email) {
         return searchHouseService.switchStatus(email);
     }
 }

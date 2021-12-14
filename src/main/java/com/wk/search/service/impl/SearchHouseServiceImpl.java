@@ -149,8 +149,8 @@ public class SearchHouseServiceImpl implements SearchHouseService {
     private void send1(SearchEntity searchInfo) throws IOException {
         Float scope = searchInfo.getScope();
         String receiver = searchInfo.getReceiver();
-        String[] keywords = searchInfo.getKeywordsList().split(",");
-        String[] blackWords = searchInfo.getBlackWordsList().split(",");
+        String[] keywords = searchInfo.getKeywordsList().split("，");
+        String[] blackWords = searchInfo.getBlackWordsList().split("，");
         StringBuilder validText = new StringBuilder();
         StringBuilder infoStr = new StringBuilder();
         String[] urlList = searchUrls.split(",");
