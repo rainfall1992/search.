@@ -35,7 +35,7 @@ public class SearchHouseServiceImpl implements SearchHouseService {
     public void search() throws IOException {
         List<SearchEntity> list = searchMapper.getSearchInfo();
         for (SearchEntity entity : list) {
-            send(entity);
+            send1(entity);
         }
     }
 
@@ -58,10 +58,10 @@ public class SearchHouseServiceImpl implements SearchHouseService {
     private String[] getLines(String searchUrl, String keyword) throws Exception {
         // 配置Header
         Header[] headers = HttpHeader.custom()
-                .userAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:88.0) Gecko/20100101 Firefox/88.0")
-                .accept("text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8")
+                .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.120 Safari/537.36")
+                .accept("text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3")
                 .connection("keep-alive")
-                .cookie("douban-fav-remind=1; gr_user_id=0942ea2f-0017-432a-9066-d3c932cbf4d3; _vwo_uuid_v2=D65E3291E2809E15DABB76F162E79B78E|7510a95ec70229c82ba0d0950809cc7a; douban-profile-remind=1; __utma=30149280.693633016.1580883852.1622510990.1622517315.87; __utmz=30149280.1622517315.87.62.utmcsr=baidu|utmccn=(organic)|utmcmd=organic; _pk_id.100001.8cb4=48a0edbb66ec2762.1582527590.53.1622517332.1622514273.; __utmv=30149280.7079; _pk_ref.100001.8cb4=%5B%22%22%2C%22%22%2C1622517314%2C%22https%3A%2F%2Fwww.baidu.com%2Flink%3Furl%3DfpFiZ1RT_nYnpeCA-5_HWmIusXx0QZTmqP4ZwUk1WSD_SiUGkZqfJMJlBJMkWl6R%26wd%3D%26eqid%3Ddbe20b1b00002a260000000660b5a63e%22%5D; viewed=\"34819650_20432061_1088054_26282806_35252621_30221096_27179953_30417623_4848587_26740520\"; bid=djiWilf_lI4; ll=\"118282\"; dbcl2=\"70797010:ru2VPoAi+jE\"; push_noty_num=0; push_doumail_num=0; ck=_TY-; __yadk_uid=cWUBOaWz2pt5Bu5vr9pSoXHeiBwrjXf3; __gads=ID=8f15d2ec8393748a-22899e8113c90073:T=1622424165:RT=1622424165:S=ALNI_MavpFd32m-b6CCe1JMBfAaWKW5AnQ; __utmc=30149280; ap_v=0,6.0; _pk_ses.100001.8cb4=*; __utmb=30149280.6.10.1622517315; __utmt=1")
+                .cookie("_ga=GA1.2.1565475140.1570672684; ll=\"108296\"; gr_user_id=a1daa0cd-61eb-4651-89e3-8dffd8a8f7c1; __utmv=30149280.23353; bid=EwNSpsLTGoQ; __utmc=30149280; __utmz=30149280.1637565844.19.9.utmcsr=google|utmccn=(organic)|utmcmd=organic|utmctr=(not%20provided); dbcl2=\"233539861:sTxQt/6wp1Q\"; ck=-B9H; push_noty_num=0; push_doumail_num=0; ct=y; ap_v=0,6.0; __utma=30149280.1565475140.1570672684.1639449246.1639463429.51; _pk_ref.100001.8cb4=%5B%22%22%2C%22%22%2C1639466082%2C%22https%3A%2F%2Fwww.google.com.hk%2F%22%5D; _pk_id.100001.8cb4=2156c3af81fe3ba0.1561965743.56.1639466082.1639463437.; _pk_ses.100001.8cb4=*")
                 .build();
         HttpConfig config = HttpConfig.custom()
                 .headers(headers)
@@ -125,6 +125,69 @@ public class SearchHouseServiceImpl implements SearchHouseService {
                                     && !titleStr.contains("求租")
                                     && (titleStr.contains("房") || titleStr.contains("租") || titleStr.contains("间") || titleStr.contains("厅")
                                     || titleStr.contains("室") || titleStr.contains("住"))) {
+                                //如果数据符合上述条件 拼接字符串
+                                infoStr.append(info).append("\r\n");
+                            }
+                        }
+                    }
+                }
+            }
+            // log.info("\r\n" + "[最终正文]:" + "\r\n" + infoStr);
+            if (infoStr.length() > 0) {
+                String str = "====================================" + "\r\n" + "检索范围: " + scope + "小时内" + "\r\n" + "关键词: " + Arrays.toString(keywords) + "\r\n" + "====================================" + "\r\n";
+                mailSenderUtil.sendSimpleMail(receiver, "豆瓣租房-发现新房源", str + infoStr.toString());
+                log.info("{} 邮件发送成功!", receiver);
+            } else {
+                log.info("未找到合适信息");
+            }
+        } catch (Exception e) {
+            log.info("邮件发送失败!");
+            e.printStackTrace();
+        }
+    }
+
+    private void send1(SearchEntity searchInfo) throws IOException {
+        Float scope = searchInfo.getScope();
+        String receiver = searchInfo.getReceiver();
+        String[] keywords = searchInfo.getKeywordsList().split(",");
+        String[] blackWords = searchInfo.getBlackWordsList().split(",");
+        StringBuilder validText = new StringBuilder();
+        StringBuilder infoStr = new StringBuilder();
+        String[] urlList = searchUrls.split(",");
+        int year = Calendar.getInstance().get(Calendar.YEAR);
+        try {
+            for (String keyword : keywords) {
+                for (String searchUrl : urlList) {
+                    String[] lines = getLines(searchUrl, keyword);
+                    //逐行读取网页源码
+                    for (String line : lines) {
+                        //找到有效数据
+                        if (line.contains("group_topic_by_time") || (line.contains("\n") && line.endsWith("</a></td>"))) {
+                            validText = new StringBuilder(line);
+                        }
+                        if (line.contains("td-time") && (line.contains(year + "") || line.contains(year - 1 + ""))) {
+                            validText.append(line);
+                            int startIndex = validText.indexOf(year + "-");
+                            String dateStr = validText.substring(startIndex, validText.indexOf("\" nowrap="));
+                            String urlStr = validText.substring(validText.indexOf("http"), validText.indexOf("\" onclick"));
+                            String titleStr = validText.substring(validText.indexOf("title=\"") + 7, validText.lastIndexOf("<td class=\"td-time\""));
+                            if (titleStr.contains("</a></td>")) {
+                                titleStr = titleStr.substring(0, titleStr.indexOf("</a></td>"));
+                            }
+                            if (titleStr.contains("\">")) {
+                                titleStr = titleStr.substring(0, titleStr.indexOf("\">"));
+                            }
+                            String info = "[" + keyword + "]\r\n" + "标题：" + titleStr + "\r\n" + dateStr + "\r\n" + urlStr + "\r\n";
+                            Date parse = DateUtil.parse(dateStr, "yyyy-MM-dd HH:mm:ss");
+                            float time = (new Date().getTime() - parse.getTime()) / 1000F / 60F / 60F;
+                            boolean blackWordFlag = true;
+                            for (String blackWord : blackWords) {
+                                if (!StrUtil.isEmpty(blackWord) && titleStr.contains(blackWord)) {
+                                    blackWordFlag = false;
+                                    break;
+                                }
+                            }
+                            if (blackWordFlag && time < scope) {
                                 //如果数据符合上述条件 拼接字符串
                                 infoStr.append(info).append("\r\n");
                             }
