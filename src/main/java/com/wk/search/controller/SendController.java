@@ -33,4 +33,10 @@ public class SendController {
     public String sendEmail(@PathVariable String email) {
         return searchHouseService.switchStatus(email);
     }
+
+    public static void main(String[] args) {
+        String[] arr = {"好房合租"};
+        String str = "好房合租";
+
+    }
 }

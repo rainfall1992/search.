@@ -4,7 +4,10 @@ package com.wk.search.service.impl;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import com.arronlong.httpclientutil.HttpClientUtil;
-import com.arronlong.httpclientutil.common.*;
+import com.arronlong.httpclientutil.common.HttpConfig;
+import com.arronlong.httpclientutil.common.HttpCookies;
+import com.arronlong.httpclientutil.common.HttpHeader;
+import com.arronlong.httpclientutil.common.HttpResult;
 import com.wk.search.mapper.SearchMapper;
 import com.wk.search.model.SearchEntity;
 import com.wk.search.service.SearchHouseService;
@@ -20,6 +23,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -156,45 +160,62 @@ public class SearchHouseServiceImpl implements SearchHouseService {
         String[] urlList = searchUrls.split(",");
         int year = Calendar.getInstance().get(Calendar.YEAR);
         try {
+            long t1 = System.currentTimeMillis();
             for (String keyword : keywords) {
-                for (String searchUrl : urlList) {
-                    String[] lines = getLines(searchUrl, keyword);
+
+            }
+            for (String searchUrl : urlList) {
+                for (int i = 0; i <= 25 ; i+=25) {
+                    String[] lines = getLines1(searchUrl + i);
                     //逐行读取网页源码
-                    for (String line : lines) {
+//                    lines = Arrays.copyOfRange(lines, 280, 750);
+                    List<String> list = Arrays.asList(lines);
+                    list = list.stream().filter(v -> v.contains("https://www.douban.com/group/topic/") || v.contains("class=\"time\"")).collect(Collectors.toList());
+                    for (String line : list) {
                         //找到有效数据
-                        if (line.contains("group_topic_by_time") || (line.contains("\n") && line.endsWith("</a></td>"))) {
+                        if (line.contains("https://www.douban.com/group/topic/")) {
                             validText = new StringBuilder(line);
+                            String titleStr = validText.substring(validText.indexOf("title=\"") + 7, validText.indexOf("\" class") < 0 ? validText.length() : validText.indexOf("\" class"));
+
+                            String urlStr = validText.substring(validText.indexOf("http"), validText.indexOf("\" title"));
+                            String info = "标题：" + titleStr + "\r\n" + urlStr;
+                            infoStr.append(info).append("\r\n");
                         }
-                        if (line.contains("td-time") && (line.contains(year + "") || line.contains(year - 1 + ""))) {
-                            validText.append(line);
-                            int startIndex = validText.indexOf(year + "-");
-                            String dateStr = validText.substring(startIndex, validText.indexOf("\" nowrap="));
-                            String urlStr = validText.substring(validText.indexOf("http"), validText.indexOf("\" onclick"));
-                            String titleStr = validText.substring(validText.indexOf("title=\"") + 7, validText.lastIndexOf("<td class=\"td-time\""));
-                            if (titleStr.contains("</a></td>")) {
-                                titleStr = titleStr.substring(0, titleStr.indexOf("</a></td>"));
-                            }
-                            if (titleStr.contains("\">")) {
-                                titleStr = titleStr.substring(0, titleStr.indexOf("\">"));
-                            }
-                            String info = "[" + keyword + "]\r\n" + "标题：" + titleStr + "\r\n" + dateStr + "\r\n" + urlStr + "\r\n";
-                            Date parse = DateUtil.parse(dateStr, "yyyy-MM-dd HH:mm:ss");
-                            float time = (new Date().getTime() - parse.getTime()) / 1000F / 60F / 60F;
-                            boolean blackWordFlag = true;
-                            for (String blackWord : blackWords) {
-                                if (!StrUtil.isEmpty(blackWord) && titleStr.contains(blackWord)) {
-                                    blackWordFlag = false;
-                                    break;
-                                }
-                            }
-                            if (blackWordFlag && time < scope) {
-                                //如果数据符合上述条件 拼接字符串
-                                infoStr.append(info).append("\r\n");
-                            }
+                        if (line.contains("class=\"time\"")) {
+                            infoStr.append("时间：").append(line.substring(line.indexOf("time") + 6, line.indexOf("</td>"))).append("\r\n");
                         }
+//                        if (line.contains("class=\"time\"")) {
+//                            validText.append(line);
+//                            int startIndex = validText.indexOf(year + "-");
+//                            String dateStr = validText.substring(startIndex, validText.indexOf("\" nowrap="));
+//                            String urlStr = validText.substring(validText.indexOf("http"), validText.indexOf("\" onclick"));
+//                            String titleStr = validText.substring(validText.indexOf("title=\"") + 7, validText.lastIndexOf("<td class=\"td-time\""));
+//                            if (titleStr.contains("</a></td>")) {
+//                                titleStr = titleStr.substring(0, titleStr.indexOf("</a></td>"));
+//                            }
+//                            if (titleStr.contains("\">")) {
+//                                titleStr = titleStr.substring(0, titleStr.indexOf("\">"));
+//                            }
+//                            String info = "[" + keyword + "]\r\n" + "标题：" + titleStr + "\r\n" + dateStr + "\r\n" + urlStr + "\r\n";
+//                            Date parse = DateUtil.parse(dateStr, "yyyy-MM-dd HH:mm:ss");
+//                            float time = (new Date().getTime() - parse.getTime()) / 1000F / 60F / 60F;
+//                            boolean blackWordFlag = true;
+//                            for (String blackWord : blackWords) {
+//                                if (!StrUtil.isEmpty(blackWord) && titleStr.contains(blackWord)) {
+//                                    blackWordFlag = false;
+//                                    break;
+//                                }
+//                            }
+//                            if (blackWordFlag && time < scope) {
+//                                //如果数据符合上述条件 拼接字符串
+//                                infoStr.append(info).append("\r\n");
+//                            }
+//                        }
                     }
                 }
             }
+            long t2 = System.currentTimeMillis();
+            log.info("总耗时：{} ms", t2 - t1);
             // log.info("\r\n" + "[最终正文]:" + "\r\n" + infoStr);
             if (infoStr.length() > 0) {
                 String str = "====================================" + "\r\n" + "检索范围: " + scope + "小时内" + "\r\n" + "关键词: " + Arrays.toString(keywords) + "\r\n" + "====================================" + "\r\n";
@@ -207,5 +228,27 @@ public class SearchHouseServiceImpl implements SearchHouseService {
             log.info("邮件发送失败!");
             e.printStackTrace();
         }
+    }
+
+    private String[] getLines1(String searchUrl) throws Exception {
+        // 配置Header
+        Header[] headers = HttpHeader.custom()
+                .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.120 Safari/537.36")
+                .accept("text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3")
+                .connection("keep-alive")
+                .cookie("_ga=GA1.2.1565475140.1570672684; ll=\"108296\"; gr_user_id=a1daa0cd-61eb-4651-89e3-8dffd8a8f7c1; __utmv=30149280.23353; bid=EwNSpsLTGoQ; __utmc=30149280; __utmz=30149280.1637565844.19.9.utmcsr=google|utmccn=(organic)|utmcmd=organic|utmctr=(not%20provided); dbcl2=\"233539861:sTxQt/6wp1Q\"; ck=-B9H; push_noty_num=0; push_doumail_num=0; ct=y; ap_v=0,6.0; __utma=30149280.1565475140.1570672684.1639449246.1639463429.51; _pk_ref.100001.8cb4=%5B%22%22%2C%22%22%2C1639466082%2C%22https%3A%2F%2Fwww.google.com.hk%2F%22%5D; _pk_id.100001.8cb4=2156c3af81fe3ba0.1561965743.56.1639466082.1639463437.; _pk_ses.100001.8cb4=*")
+                .build();
+        HttpConfig config = HttpConfig.custom()
+                .headers(headers)
+                .timeout(3000)
+                .url(searchUrl)
+                .context(HttpCookies.custom().getContext());
+        HttpResult respResult = HttpClientUtil.sendAndGetResp(config);
+        String result = respResult.getResult();
+        if (result.contains("403 Forbidden")) {
+            log.info("403 Forbidden");
+        }
+        //获取网页源码
+        return result.split("\\r?\\n");
     }
 }
