@@ -1,6 +1,7 @@
 package com.wk.search.model;
 
 import java.io.Serializable;
+import java.util.Date;
 
 
 public class SearchEntity implements Serializable {
@@ -10,6 +11,16 @@ public class SearchEntity implements Serializable {
     private String keywordsList;
     private String blackWordsList;
     private String receiver;
+
+    public Date getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateTime(Date updateTime) {
+        this.updateTime = updateTime;
+    }
+
+    private Date updateTime;
 
     public static long getSerialVersionUID() {
         return serialVersionUID;

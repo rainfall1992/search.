@@ -152,38 +152,57 @@ public class SearchHouseServiceImpl implements SearchHouseService {
 
     private void send1(SearchEntity searchInfo) throws IOException {
         Float scope = searchInfo.getScope();
+        Date updateTime = searchInfo.getUpdateTime();
         String receiver = searchInfo.getReceiver();
-        String[] keywords = searchInfo.getKeywordsList().split("，");
-        String[] blackWords = searchInfo.getBlackWordsList().split("，");
+        String[] keyWords = {"静安","长宁","徐汇","镇坪路","中潭路","中山公园","江苏路","娄山关","南京东路","南京西路","人民广场","西藏南路","金沙江路",
+                "宜山路","上海体育场","上海体育馆","打浦桥","鲁班路","虹桥路","延安西路","曹杨路","上海火车站","大木桥路","东安路","漕宝路",
+                "龙漕路","龙华","嘉善路","汉中路","曲阜路","隆德路","新天地","马当路","淮海中路","自然博物馆","交通大学","真如","枫桥路",
+                "上海游泳馆","云锦路","东方体育中心","龙耀路","三林","龙柏新村","上海动物园","龙溪路","水城路","伊犁路","宋园路","上海图书馆",
+                "老西门","豫园","天潼路","四川北路","陆家浜路","大世界","石龙路","上海南站","漕溪路","衡山路"};
+        String[] blackWords = {"合租","室友","求","5号","16号","17号","18号","浦江","5/","/15","/16","/17","/18","自如","九亭","泗泾","漕河泾","松江",
+                "主卧","次卧","两房","两室","loft","公寓","直达"};
+//        String[] keywords = searchInfo.getKeywordsList().split("，");
+//        String[] blackWords = searchInfo.getBlackWordsList().split("，");
         StringBuilder validText = new StringBuilder();
         StringBuilder infoStr = new StringBuilder();
         String[] urlList = searchUrls.split(",");
-        int year = Calendar.getInstance().get(Calendar.YEAR);
+//        int year = Calendar.getInstance().get(Calendar.YEAR);
         try {
             long t1 = System.currentTimeMillis();
-            for (String keyword : keywords) {
-
-            }
             for (String searchUrl : urlList) {
-                for (int i = 0; i <= 25 ; i+=25) {
+                for (int i = 0; i <= 500 ; i+=25) {
                     String[] lines = getLines1(searchUrl + i);
                     //逐行读取网页源码
 //                    lines = Arrays.copyOfRange(lines, 280, 750);
                     List<String> list = Arrays.asList(lines);
-                    list = list.stream().filter(v -> v.contains("https://www.douban.com/group/topic/") || v.contains("class=\"time\"")).collect(Collectors.toList());
+                    list = list.stream().filter(v -> v.contains("https://www.douban.com/group/topic/")).collect(Collectors.toList());
+//                    list = list.stream().filter(v -> v.contains("https://www.douban.com/group/topic/") || v.contains("class=\"time\"")).collect(Collectors.toList());
                     for (String line : list) {
-                        //找到有效数据
+                        boolean flag = true;
                         if (line.contains("https://www.douban.com/group/topic/")) {
                             validText = new StringBuilder(line);
                             String titleStr = validText.substring(validText.indexOf("title=\"") + 7, validText.indexOf("\" class") < 0 ? validText.length() : validText.indexOf("\" class"));
-
-                            String urlStr = validText.substring(validText.indexOf("http"), validText.indexOf("\" title"));
-                            String info = "标题：" + titleStr + "\r\n" + urlStr;
-                            infoStr.append(info).append("\r\n");
+//                            System.out.println(titleStr);
+                            for (String bw : blackWords) {
+                                if (titleStr.contains(bw)) {
+                                    flag = false;
+                                    break;
+                                }
+                            }
+                            if (flag) {
+                                for (String kw : keyWords) {
+                                    if (titleStr.contains(kw)) {
+                                        String urlStr = validText.substring(validText.indexOf("http"), validText.indexOf("\" title"));
+                                        String info = "标题：" + titleStr + "\r\n" + urlStr;
+                                        infoStr.append(info).append("\r\n");
+                                        break;
+                                    }
+                                }
+                            }
                         }
-                        if (line.contains("class=\"time\"")) {
-                            infoStr.append("时间：").append(line.substring(line.indexOf("time") + 6, line.indexOf("</td>"))).append("\r\n");
-                        }
+//                        if (line.contains("class=\"time\"")) {
+//                            infoStr.append("时间：").append(line.substring(line.indexOf("time") + 6, line.indexOf("</td>"))).append("\r\n");
+//                        }
 //                        if (line.contains("class=\"time\"")) {
 //                            validText.append(line);
 //                            int startIndex = validText.indexOf(year + "-");
@@ -218,7 +237,7 @@ public class SearchHouseServiceImpl implements SearchHouseService {
             log.info("总耗时：{} ms", t2 - t1);
             // log.info("\r\n" + "[最终正文]:" + "\r\n" + infoStr);
             if (infoStr.length() > 0) {
-                String str = "====================================" + "\r\n" + "检索范围: " + scope + "小时内" + "\r\n" + "关键词: " + Arrays.toString(keywords) + "\r\n" + "====================================" + "\r\n";
+                String str = "====================================" + "\r\n" + "检索范围: " + scope + "小时内" + "\r\n" + "关键词: " + Arrays.toString(keyWords) + "\r\n" + "====================================" + "\r\n";
                 mailSenderUtil.sendSimpleMail(receiver, "豆瓣租房-发现新房源", str + infoStr.toString());
                 log.info("{} 邮件发送成功!", receiver);
             } else {
