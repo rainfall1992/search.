@@ -80,8 +80,7 @@ public class SearchHouseServiceImpl implements SearchHouseService {
 
     private void send(SearchEntity searchInfo) throws IOException {
         Float scope = searchInfo.getScope();
-        String receiver = "371682060@qq.com,1052245541@qq.com";
-//        String receiver = searchInfo.getReceiver();
+        String receiver = searchInfo.getReceiver();
         String[] keywords = searchInfo.getKeywordsList().split(",");
         String[] blackWords = searchInfo.getBlackWordsList().split(",");
         StringBuilder validText = new StringBuilder();
@@ -150,14 +149,16 @@ public class SearchHouseServiceImpl implements SearchHouseService {
 
     private void send1(SearchEntity searchInfo, Integer page) throws IOException {
         Float scope = searchInfo.getScope();
-        String receiver = searchInfo.getReceiver();
+        String receiver = "371682060@qq.com,1052245541@qq.com";
+//        String receiver = searchInfo.getReceiver();
         String[] keyWords = {"静安", "长宁", "徐汇", "镇坪路", "中潭路", "中山公园", "江苏路", "娄山关", "南京东路", "南京西路", "人民广场", "西藏南路", "金沙江路",
                 "宜山路", "上海体育场", "上海体育馆", "打浦桥", "鲁班路", "虹桥路", "延安西路", "曹杨路", "上海火车站", "大木桥路", "东安路", "漕宝路",
                 "龙漕路", "龙华", "嘉善路", "汉中路", "曲阜路", "隆德路", "新天地", "马当路", "淮海中路", "自然博物馆", "交通大学", "真如", "枫桥路",
                 "上海游泳馆", "云锦路", "龙耀路", "龙柏新村", "上海动物园", "龙溪路", "水城路", "伊犁路", "宋园路", "上海图书馆",
                 "老西门", "豫园", "天潼路", "四川北路", "陆家浜路", "大世界", "石龙路", "上海南站", "漕溪路", "衡山路"};
-        String[] blackWords = {"合租", "室友", "求", "16号", "17号", "18号", "浦江", "5/", "/16", "/17", "/18", "自如", "九亭", "泗泾", "漕河泾", "松江",
-                "主卧", "次卧", "两房", "两室", "两厅", "loft", "公寓", "直达", "可达", "2室", "单间", "每户", "女生", "房间", "个人", "低至", "半小时"};
+        String[] blackWords = {"合租", "室友", "求", "随时", "拎包", "16号", "17号", "18号", "浦江", "5/", "/16", "/17", "/18", "自如", "九亭", "泗泾", "漕河泾",
+                "松江", "主卧", "次卧", "两房", "两室", "两厅", "loft", "LOFT", "公寓", "直达", "可达", "2室", "单间", "每户", "女生", "男生", "房间", "个人",
+                "低至", "半小时", "售", "合用", "通勤", "分钟", "小时"};
 //        String[] keywords = searchInfo.getKeywordsList().split("，");
 //        String[] blackWords = searchInfo.getBlackWordsList().split("，");
         StringBuilder validText = new StringBuilder();
@@ -192,8 +193,8 @@ public class SearchHouseServiceImpl implements SearchHouseService {
                         if (flag) {
                             for (String kw : keyWords) {
                                 if (titleStr.contains(kw)) {
-                                    String urlStr = validText.substring(validText.indexOf("http"), validText.indexOf("\" title"));
-                                    String info = "标题：" + titleStr + "\r\n" + urlStr;
+                                    String urlStr = validText.substring(validText.indexOf("www"), validText.indexOf("\" title"));
+                                    String info = titleStr + "\r\n" + urlStr;
                                     infoStr.append(info).append("\r\n");
                                     break;
                                 }

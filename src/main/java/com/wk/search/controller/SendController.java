@@ -4,7 +4,6 @@ import com.wk.search.service.SearchHouseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailException;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -34,7 +33,7 @@ public class SendController {
 
     @GetMapping(value = "/send")
     @ResponseBody
-    @Scheduled(cron = "0 0 0/1 * * ?") //每小时执行一次
+//    @Scheduled(cron = "0 0 0/1 * * ?") //每小时执行一次
     public String sendEmail() {
         try {
             searchHouseService.search(null);
