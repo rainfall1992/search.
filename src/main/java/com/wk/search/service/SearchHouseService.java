@@ -3,7 +3,7 @@ package com.wk.search.service;
 import java.io.IOException;
 
 public interface SearchHouseService {
-    void search() throws IOException;
+    void search(Integer page) throws IOException;
 
     String switchStatus(String id);
 }

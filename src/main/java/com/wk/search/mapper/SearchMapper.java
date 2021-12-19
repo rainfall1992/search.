@@ -14,4 +14,6 @@ public interface SearchMapper {
     Integer statusByEmail(String email);
 
     void switchStatus(String email, int i);
+
+    void updateTime();
 }

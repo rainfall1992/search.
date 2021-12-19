@@ -5,7 +5,6 @@
         UPDATE t_search SET status = #{i}
         WHERE receiver = #{email};
     </update>
-
     <select id="getSearchInfo" resultType="com.wk.search.model.SearchEntity">
         SELECT * FROM t_search
         WHERE status = 1;
@@ -14,4 +13,7 @@
         SELECT status FROM t_search
         WHERE receiver = #{email};
     </select>
+    <update id="updateTime">
+        UPDATE t_search SET updateTime = NOW();
+    </update>
 </mapper>
