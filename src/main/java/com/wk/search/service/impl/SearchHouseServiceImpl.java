@@ -157,7 +157,7 @@ public class SearchHouseServiceImpl implements SearchHouseService {
                 "上海游泳馆", "云锦路", "龙耀路", "龙柏新村", "上海动物园", "龙溪路", "水城路", "伊犁路", "宋园路", "上海图书馆",
                 "老西门", "豫园", "天潼路", "四川北路", "陆家浜路", "大世界", "石龙路", "上海南站", "漕溪路", "衡山路"};
         String[] blackWords = {"合租", "室友", "求", "随时", "拎包", "16号", "17号", "18号", "浦江", "5/", "/16", "/17", "/18", "自如", "九亭", "泗泾", "漕河泾",
-                "松江", "主卧", "次卧", "两房", "两室", "两厅", "loft", "LOFT", "公寓", "直达", "可达", "2室", "单间", "每户", "女生", "男生", "房间", "个人",
+                "松江", "卧", "两房", "两室", "两厅", "loft", "LOFT", "公寓", "直达", "可达", "2室", "单间", "每户", "女生", "男生", "房间", "个人",
                 "低至", "半小时", "售", "合用", "通勤", "分钟", "小时"};
 //        String[] keywords = searchInfo.getKeywordsList().split("，");
 //        String[] blackWords = searchInfo.getBlackWordsList().split("，");
@@ -213,6 +213,7 @@ public class SearchHouseServiceImpl implements SearchHouseService {
             }
             long t2 = System.currentTimeMillis();
             log.info("总耗时：{} ms", t2 - t1);
+            searchMapper.updateTime();
             // log.info("\r\n" + "[最终正文]:" + "\r\n" + infoStr);
             if (infoStr.length() > 0) {
                 String subject = "豆瓣租房 " + updated + " 至 " + created;
@@ -224,7 +225,6 @@ public class SearchHouseServiceImpl implements SearchHouseService {
             } else {
                 log.info("未找到合适信息");
             }
-            searchMapper.updateTime();
         } catch (Exception e) {
             log.info("邮件发送失败!");
             e.printStackTrace();
