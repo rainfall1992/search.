@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.http.Header;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.io.IOException;
@@ -24,6 +25,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
+@Transactional
 public class SearchHouseServiceImpl implements SearchHouseService {
     @Resource
     private MailSenderUtil mailSenderUtil;
@@ -149,6 +151,7 @@ public class SearchHouseServiceImpl implements SearchHouseService {
 
     private void send1(SearchEntity searchInfo, Integer page) throws IOException {
         Float scope = searchInfo.getScope();
+//        String receiver = "371682060@qq.com";
         String receiver = "371682060@qq.com,1052245541@qq.com";
 //        String receiver = searchInfo.getReceiver();
         String[] keyWords = {"静安", "长宁", "徐汇", "镇坪路", "中潭路", "中山公园", "江苏路", "娄山关", "南京东路", "南京西路", "人民广场", "西藏南路", "金沙江路",
@@ -194,8 +197,8 @@ public class SearchHouseServiceImpl implements SearchHouseService {
                         if (flag) {
                             for (String kw : keyWords) {
                                 if (titleStr.contains(kw)) {
-                                    String urlStr = validText.substring(validText.indexOf("www"), validText.indexOf("\" title"));
-                                    String info = titleStr + "\r\n" + urlStr;
+                                    String urlStr = validText.substring(validText.indexOf("http"), validText.indexOf("\" title"));
+                                    String info = "<div style=\"padding-bottom: 5px;\"><a style=\"text-decoration: none;\" href=\"" + urlStr + "\">" + titleStr + "</a></div>";
                                     infoStr.append(info).append("\r\n");
                                     break;
                                 }
@@ -210,6 +213,7 @@ public class SearchHouseServiceImpl implements SearchHouseService {
                         }
                     }
                     i += 30;
+                    Thread.sleep(new Random().nextInt(1000));
                 }
             }
             long t2 = System.currentTimeMillis();
@@ -219,7 +223,7 @@ public class SearchHouseServiceImpl implements SearchHouseService {
                 String subject = "豆瓣租房 " + updated + " 至 " + created;
                 String[] receivers = receiver.split(",");
                 for (String r : receivers) {
-                    mailSenderUtil.sendSimpleMail(r, subject, infoStr.toString());
+                    mailSenderUtil.sendHtmlMail(r, subject, infoStr.toString());
                     log.info("{} 邮件发送成功!", r);
                 }
             } else {
@@ -236,7 +240,7 @@ public class SearchHouseServiceImpl implements SearchHouseService {
                 .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.120 Safari/537.36")
                 .accept("text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3")
                 .connection("keep-alive")
-                .cookie("_ga=GA1.2.1565475140.1570672684; ll=\"108296\"; gr_user_id=a1daa0cd-61eb-4651-89e3-8dffd8a8f7c1; __utmv=30149280.23353; bid=EwNSpsLTGoQ; __utmc=30149280; __utmz=30149280.1637565844.19.9.utmcsr=google|utmccn=(organic)|utmcmd=organic|utmctr=(not%20provided); dbcl2=\"233539861:sTxQt/6wp1Q\"; ck=-B9H; push_noty_num=0; push_doumail_num=0; ct=y; ap_v=0,6.0; __utma=30149280.1565475140.1570672684.1639449246.1639463429.51; _pk_ref.100001.8cb4=%5B%22%22%2C%22%22%2C1639466082%2C%22https%3A%2F%2Fwww.google.com.hk%2F%22%5D; _pk_id.100001.8cb4=2156c3af81fe3ba0.1561965743.56.1639466082.1639463437.; _pk_ses.100001.8cb4=*")
+                .cookie("_ga=GA1.2.1565475140.1570672684; ll=\"108296\"; gr_user_id=a1daa0cd-61eb-4651-89e3-8dffd8a8f7c1; __utmv=30149280.23353; bid=EwNSpsLTGoQ; push_doumail_num=0; dbcl2=\"233539861:LZa/ZoOichU\"; push_noty_num=0; ap_v=0,6.0; _pk_ref.100001.8cb4=%5B%22%22%2C%22%22%2C1640326545%2C%22https%3A%2F%2Fmail.qq.com%2F%22%5D; _pk_ses.100001.8cb4=*; __utma=30149280.1565475140.1570672684.1640324421.1640326546.85; __utmz=30149280.1640326546.85.18.utmcsr=mail.qq.com|utmccn=(referral)|utmcmd=referral|utmcct=/; ck=u57W; __utmc=30149280; __utmt=1; _pk_id.100001.8cb4=2156c3af81fe3ba0.1561965743.90.1640327811.1640324437.; __utmb=30149280.45.7.1640327811175")
                 .build();
         HttpConfig config = HttpConfig.custom()
                 .headers(headers)
