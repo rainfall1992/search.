@@ -64,7 +64,7 @@ public class SearchHouseServiceImpl implements SearchHouseService {
                 .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.120 Safari/537.36")
                 .accept("text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3")
                 .connection("keep-alive")
-                .cookie("_ga=GA1.2.1565475140.1570672684; ll=\"108296\"; gr_user_id=a1daa0cd-61eb-4651-89e3-8dffd8a8f7c1; __utmv=30149280.23353; bid=EwNSpsLTGoQ; __utmc=30149280; __utmz=30149280.1637565844.19.9.utmcsr=google|utmccn=(organic)|utmcmd=organic|utmctr=(not%20provided); dbcl2=\"233539861:sTxQt/6wp1Q\"; ck=-B9H; push_noty_num=0; push_doumail_num=0; ct=y; ap_v=0,6.0; __utma=30149280.1565475140.1570672684.1639449246.1639463429.51; _pk_ref.100001.8cb4=%5B%22%22%2C%22%22%2C1639466082%2C%22https%3A%2F%2Fwww.google.com.hk%2F%22%5D; _pk_id.100001.8cb4=2156c3af81fe3ba0.1561965743.56.1639466082.1639463437.; _pk_ses.100001.8cb4=*")
+                .cookie("bid=J2H32UUGnd0; douban-fav-remind=1; ll=\"108296\"; viewed=\"26369862\"; gr_user_id=45a36fdd-c3f2-43d4-9c28-d3b50877a58f; push_doumail_num=0; push_noty_num=0; __utmv=30149280.23353; ct=y; _ga=GA1.2.696336918.1614133185; __utmc=30149280; dbcl2=\"233539861:LZa/ZoOichU\"; ck=u57W; __utmz=30149280.1640273878.42.13.utmcsr=mail.qq.com|utmccn=(referral)|utmcmd=referral|utmcct=/; _pk_ref.100001.8cb4=%5B%22%22%2C%22%22%2C1640447841%2C%22https%3A%2F%2Fmail.qq.com%2F%22%5D; _pk_ses.100001.8cb4=*; __utma=30149280.696336918.1614133185.1640273878.1640447842.43; __utmt=1; _pk_id.100001.8cb4=b99ab4cfef359a4b.1614133184.40.1640447909.1640274291.; __utmb=30149280.39.6.1640447909095")
                 .build();
         HttpConfig config = HttpConfig.custom()
                 .headers(headers)
@@ -161,7 +161,8 @@ public class SearchHouseServiceImpl implements SearchHouseService {
                 "老西门", "豫园", "天潼路", "四川北路", "陆家浜路", "大世界", "石龙路", "上海南站", "漕溪路", "衡山路", "徐家汇"};
         String[] blackWords = {"合租", "室友", "求", "随时", "拎包", "16号", "17号", "18号", "浦江", "5/", "/16", "/17", "/18", "自如", "九亭", "泗泾",
                 "松江", "卧", "两房", "两室", "两厅", "loft", "LOFT", "公寓", "直达", "可达", "2室", "单间", "每户", "女生", "妹子", "男生", "房间", "个人",
-                "低至", "半小时", "售", "合用", "通勤", "分钟", "小时", "诚意", "房源", "给钱", "只要", "欢迎", "故事", "都有", "办公楼", "活动"};
+                "低至", "半小时", "售", "合用", "通勤", "分钟", "小时", "诚意", "房源", "给钱", "只要", "欢迎", "故事", "都有", "办公楼", "活动", "二房",
+                "三房", "2房", "3房", "两居室", "三居室", "2居室", "3居室", "三室"};
 //        String[] keywords = searchInfo.getKeywordsList().split("，");
 //        String[] blackWords = searchInfo.getBlackWordsList().split("，");
         StringBuilder validText = new StringBuilder();
@@ -240,7 +241,7 @@ public class SearchHouseServiceImpl implements SearchHouseService {
                 .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.120 Safari/537.36")
                 .accept("text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3")
                 .connection("keep-alive")
-                .cookie("_ga=GA1.2.1565475140.1570672684; ll=\"108296\"; gr_user_id=a1daa0cd-61eb-4651-89e3-8dffd8a8f7c1; __utmv=30149280.23353; bid=EwNSpsLTGoQ; push_doumail_num=0; dbcl2=\"233539861:LZa/ZoOichU\"; push_noty_num=0; ap_v=0,6.0; _pk_ref.100001.8cb4=%5B%22%22%2C%22%22%2C1640326545%2C%22https%3A%2F%2Fmail.qq.com%2F%22%5D; _pk_ses.100001.8cb4=*; __utma=30149280.1565475140.1570672684.1640324421.1640326546.85; __utmz=30149280.1640326546.85.18.utmcsr=mail.qq.com|utmccn=(referral)|utmcmd=referral|utmcct=/; ck=u57W; __utmc=30149280; __utmt=1; _pk_id.100001.8cb4=2156c3af81fe3ba0.1561965743.90.1640327811.1640324437.; __utmb=30149280.45.7.1640327811175")
+                .cookie("bid=J2H32UUGnd0; douban-fav-remind=1; ll=\"108296\"; viewed=\"26369862\"; gr_user_id=45a36fdd-c3f2-43d4-9c28-d3b50877a58f; push_doumail_num=0; push_noty_num=0; __utmv=30149280.23353; ct=y; _ga=GA1.2.696336918.1614133185; __utmc=30149280; dbcl2=\"233539861:LZa/ZoOichU\"; ck=u57W; __utmz=30149280.1640273878.42.13.utmcsr=mail.qq.com|utmccn=(referral)|utmcmd=referral|utmcct=/; _pk_ref.100001.8cb4=%5B%22%22%2C%22%22%2C1640447841%2C%22https%3A%2F%2Fmail.qq.com%2F%22%5D; _pk_ses.100001.8cb4=*; __utma=30149280.696336918.1614133185.1640273878.1640447842.43; __utmt=1; _pk_id.100001.8cb4=b99ab4cfef359a4b.1614133184.40.1640447909.1640274291.; __utmb=30149280.39.6.1640447909095")
                 .build();
         HttpConfig config = HttpConfig.custom()
                 .headers(headers)
